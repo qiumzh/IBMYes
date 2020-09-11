@@ -11,11 +11,12 @@ create_mainfest_file(){
     IBM_MEM_SIZE=256
     fi
     echo "内存大小：${IBM_MEM_SIZE}"
-    UUID=$(cat /proc/sys/kernel/random/uuid)
-    echo "生成随机UUID：${UUID}"
-    WSPATH=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 16)
-    echo "生成随机WebSocket路径：${WSPATH}"
-    
+    #UUID=$(cat /proc/sys/kernel/random/uuid)
+    #echo "生成随机UUID：${UUID}"
+    #WSPATH=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 16)
+    #WSPATH="/ibm"
+    #echo "生成随机WebSocket路径：${WSPATH}"
+
     cat >  ${SH_PATH}/IBMYes/v2ray-cloudfoundry/manifest.yml  << EOF
     applications:
     - path: .
@@ -24,24 +25,57 @@ create_mainfest_file(){
       memory: ${IBM_MEM_SIZE}M
 EOF
 
+            # {
+            #     "port": 8080,
+            #     "protocol": "vmess",
+            #     "settings": {
+            #         "clients": [
+            #             {
+            #                 "id": "${UUID}",
+            #                 "alterId": 64
+            #             }
+            #         ]
+            #     },
+            #     "streamSettings": {
+            #         "network":"ws",
+            #         "wsSettings": {
+            #             "path": "${WSPATH}"
+            #         }
+            #     }
+            # }
     cat >  ${SH_PATH}/IBMYes/v2ray-cloudfoundry/v2ray/config.json  << EOF
     {
         "inbounds": [
             {
                 "port": 8080,
-                "protocol": "vmess",
+                "listen": "127.0.0.1",
+                "protocol": "vless",
                 "settings": {
                     "clients": [
                         {
-                            "id": "${UUID}",
-                            "alterId": 4
+                            "id": "fd3afd2f-474b-81b4-4727-169c90073589",
+                            "level": 0
+                        },
+                        {
+                            "id": "6e01f4b4-22ba-cd12-6c16-3eb0b6cc3bee",
+                            "level": 0
+                        },
+                        {
+                            "id": "5574f130-9446-4746-a426-d778369e9115",
+                            "level": 0
+                        },
+                        {
+                            "id": "f86886e7-a5cb-4ad3-8891-d140c1ec3902",
+                            "level": 0
                         }
-                    ]
+                    ],
+                    "decryption": "none"
                 },
                 "streamSettings": {
-                    "network":"ws",
+                    "network": "ws",
+                    "security": "none",
                     "wsSettings": {
-                        "path": "${WSPATH}"
+                        "path": "/ibm"
                     }
                 }
             }
@@ -59,13 +93,14 @@ EOF
 
 clone_repo(){
     echo "进行初始化。。。"
-    git clone https://github.com/CCChieh/IBMYes
+	rm -rf IBMYes
+    git clone https://github.com/qiumzh/IBMYes.git
     cd IBMYes
-    git submodule update --init --recursive
+    #git submodule update --init --recursive
     cd v2ray-cloudfoundry/v2ray
     # Upgrade V2Ray to the latest version
     rm v2ray v2ctl
-    
+
     # Script from https://github.com/v2fly/fhs-install-v2ray/blob/master/install-release.sh
     # Get V2Ray release version number
     TMP_FILE="$(mktemp)"
@@ -85,7 +120,7 @@ clone_repo(){
     fi
     unzip latest-v2ray.zip v2ray v2ctl geoip.dat geosite.dat
     rm latest-v2ray.zip
-    
+
     chmod 0755 ./*
     cd ${SH_PATH}/IBMYes/v2ray-cloudfoundry
     echo "初始化完成。"
@@ -95,29 +130,29 @@ install(){
     echo "进行安装。。。"
     cd ${SH_PATH}/IBMYes/v2ray-cloudfoundry
     ibmcloud target --cf
-    ibmcloud cf install
+    echo "N"|ibmcloud cf install
     ibmcloud cf push
     echo "安装完成。"
-    echo "生成的随机 UUID：${UUID}"
-    echo "生成的随机 WebSocket路径：${WSPATH}"
-    VMESSCODE=$(base64 -w 0 << EOF
-    {
-      "v": "2",
-      "ps": "ibmyes",
-      "add": "ibmyes.us-south.cf.appdomain.cloud",
-      "port": "443",
-      "id": "${UUID}",
-      "aid": "4",
-      "net": "ws",
-      "type": "none",
-      "host": "",
-      "path": "${WSPATH}",
-      "tls": "tls"
-    }
-EOF
-    )
-	echo "配置链接："
-    echo vmess://${VMESSCODE}
+    #echo "生成的随机 UUID：${UUID}"
+    #echo "生成的随机 WebSocket路径：${WSPATH}"
+#     VMESSCODE=$(base64 -w 0 << EOF
+#     {
+#       "v": "2",
+#       "ps": "ibmyes",
+#       "add": "ibmyes.us-south.cf.appdomain.cloud",
+#       "port": "443",
+#       "id": "${UUID}",
+#       "aid": "4",
+#       "net": "ws",
+#       "type": "none",
+#       "host": "",
+#       "path": "${WSPATH}",
+#       "tls": "tls"
+#     }
+# EOF
+#     )
+# 	echo "配置链接："
+#     echo vmess://${VMESSCODE}
 
 }
 
