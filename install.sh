@@ -17,7 +17,7 @@ create_mainfest_file(){
     #WSPATH="/ibm"
     #echo "生成随机WebSocket路径：${WSPATH}"
 
-    cat >  ${SH_PATH}/IBMYes/v2ray-cloudfoundry/manifest.yml  << EOF
+    cat >  ${SH_PATH}/IBMYes/v2ray-cloud/manifest.yml  << EOF
     applications:
     - path: .
       name: ${IBM_APP_NAME}
@@ -43,7 +43,7 @@ EOF
             #         }
             #     }
             # }
-    cat >  ${SH_PATH}/IBMYes/v2ray-cloudfoundry/v2ray/config.json  << EOF
+    cat >  ${SH_PATH}/IBMYes/v2ray-cloud/v2ray/config.json  << EOF
     {
         "inbounds": [
             {
@@ -97,7 +97,7 @@ clone_repo(){
     git clone https://github.com/qiumzh/IBMYes.git
     cd IBMYes
     #git submodule update --init --recursive
-    cd v2ray-cloudfoundry/v2ray
+    cd v2ray-cloud/v2ray
     # Upgrade V2Ray to the latest version
     rm v2ray v2ctl
 
@@ -122,13 +122,13 @@ clone_repo(){
     rm latest-v2ray.zip
 
     chmod 0755 ./*
-    cd ${SH_PATH}/IBMYes/v2ray-cloudfoundry
+    cd ${SH_PATH}/IBMYes/v2ray-cloud
     echo "初始化完成。"
 }
 
 install(){
     echo "进行安装。。。"
-    cd ${SH_PATH}/IBMYes/v2ray-cloudfoundry
+    cd ${SH_PATH}/IBMYes/v2ray-cloud
     ibmcloud target --cf
     echo "N"|ibmcloud cf install
     ibmcloud cf push
