@@ -48,7 +48,7 @@ EOF
 
 echo 'applications:'>>manifest.yml
 echo '- path: .'>>manifest.yml
-echo '  command: '/app/htdocs/xray'' >>manifest.yml
+#echo '  command: '/app/htdocs/xray'' >>manifest.yml
 echo '  name: '$appname''>>manifest.yml
 echo '  random-route: true'>>manifest.yml
 echo '  memory: '$ramsize'M'>>manifest.yml
